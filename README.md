@@ -4,4 +4,4 @@
 
  ## Model Building
 
- See [ReadME.md](/ModelBuidling/ReadME.md)
+ See [ReadME.md](./ModelBuidling/ReadME.md)

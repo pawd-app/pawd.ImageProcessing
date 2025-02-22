@@ -1,2 +1,7 @@
 *.onnx
 *.pt
+/.vs
+/ImageProcessWorker/bin
+/ImageProcessWorker/images
+/ImageProcessWorker/models
+/ImageProcessWorker/obj

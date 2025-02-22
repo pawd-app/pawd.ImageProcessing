@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="images\1.jpeg" />
+    <None Remove="images\2.jpeg" />
+    <None Remove="images\3.jpg" />
+    <None Remove="images\4.jpeg" />
+    <None Remove="models\yolo11x.onnx" />
+    <None Remove="models\yolo12x.onnx" />
+    <None Remove="models\yolov10x.onnx" />
+    <None Remove="models\yolov3.cfg" />
+    <None Remove="models\yolov3.weights" />
+    <None Remove="models\yolov8x.onnx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="images\1.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="images\2.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="images\3.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="images\4.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="models\yolo11x.onnx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="models\yolo12x.onnx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="models\yolov10x.onnx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="models\yolov3.cfg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="models\yolov3.weights">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="models\yolov8x.onnx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Emgu.CV" Version="4.10.0.5680" />
+	<PackageReference Include="Emgu.CV.Runtime.Windows" Version="4.8.1" />
+	<PackageReference Include="IVilson.AI.Yolov7net" Version="1.0.10" />
+	<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
+  </ItemGroup>
+
+</Project>
