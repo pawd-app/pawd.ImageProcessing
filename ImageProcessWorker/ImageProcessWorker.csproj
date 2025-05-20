@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="images\1.jpeg" />
-    <None Remove="images\2.jpeg" />
-    <None Remove="images\3.jpg" />
-    <None Remove="images\4.jpeg" />
     <None Remove="models\yolo11x.onnx" />
     <None Remove="models\yolo12x.onnx" />
     <None Remove="models\yolov10x.onnx" />
@@ -21,18 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="images\1.jpeg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\2.jpeg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\3.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\4.jpeg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="models\yolo11x.onnx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -57,7 +41,17 @@
     <PackageReference Include="Emgu.CV" Version="4.10.0.5680" />
 	<PackageReference Include="Emgu.CV.Runtime.Windows" Version="4.8.1" />
 	<PackageReference Include="IVilson.AI.Yolov7net" Version="1.0.10" />
+	<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+	<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.5" />
+	<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.5" />
 	<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
+	<PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
