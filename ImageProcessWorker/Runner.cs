@@ -28,7 +28,7 @@ namespace ImageProcessWorker
             using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
-            await channel.QueueDeclareAsync(queue: "image_queue",
+            await channel.QueueDeclareAsync(queue: _options.RabbitMq.QueueName,
                                  durable: true,
                                  exclusive: false,
                                  autoDelete: false,
@@ -49,7 +49,7 @@ namespace ImageProcessWorker
                 await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
             };
 
-            await channel.BasicConsumeAsync(queue: "image_queue",
+            await channel.BasicConsumeAsync(queue: _options.RabbitMq.QueueName,
                                  autoAck: false,
                                  consumer: consumer);
 
