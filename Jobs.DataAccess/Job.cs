@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
 namespace Jobs.DataAccess
@@ -6,26 +7,30 @@ namespace Jobs.DataAccess
     [Table("Job", Schema = "Dagable")]
     public class Job : DomainObject
     {
-        public Guid RequestGuid { get; set; }
+        [Column(TypeName = "char(36)")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid JobGuid { get; set; }
+
+        [Required]
+        [Column(TypeName = "char(36)")]
         public Guid UserGuid { get; set; }
+
         public string InstanceName { get; set; }
         public string InstanceStatus { get; set; }
         public string InstanceDetailsJson { get; set; }
 
         public Job() { }
 
-        public Job(Guid requestGuid, Guid userGuid)
+        public Job(Guid userGuid)
         {
-            RequestGuid = requestGuid;
             UserGuid = userGuid;
         }
 
         public T GetInstanceDetails<T>()
         {
-            if (string.IsNullOrWhiteSpace(InstanceDetailsJson))
-                return default!;
-
-            return JsonSerializer.Deserialize<T>(InstanceDetailsJson)!;
+            return string.IsNullOrWhiteSpace(InstanceDetailsJson)
+                ? default!
+                : JsonSerializer.Deserialize<T>(InstanceDetailsJson)!;
         }
 
         public Job SetInstanceDetails<T>(T details)

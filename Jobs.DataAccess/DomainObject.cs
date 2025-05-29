@@ -8,6 +8,6 @@ namespace Jobs.DataAccess
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
-        public required string LastUpdatedBy { get; set; } = "SYSTEM";
+        public string LastUpdatedBy { get; set; } = "SYSTEM";
     }
 }

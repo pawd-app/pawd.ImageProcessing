@@ -53,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jobs.DataAccess\Jobs.DataAccess.csproj" />
+    <ProjectReference Include="..\Jobs.DataAccess\JobManagement.DataAccess.csproj" />
   </ItemGroup>
 
   <ItemGroup>

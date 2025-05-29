@@ -5,7 +5,9 @@ VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jobs.ImageProcess.UploadValidation", "ImageProcessWorker\Jobs.ImageProcess.UploadValidation.csproj", "{A9D5A511-DBA4-48E2-B877-A87C5A37C361}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobs.DataAccess", "Jobs.DataAccess\Jobs.DataAccess.csproj", "{FFD5A8FE-0F64-4CE8-A770-FC6E061DEA26}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobManagement.DataAccess", "Jobs.DataAccess\JobManagement.DataAccess.csproj", "{FFD5A8FE-0F64-4CE8-A770-FC6E061DEA26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobManagement.Sdk", "JobManagement.Sdk\JobManagement.Sdk.csproj", "{A0395010-ED2B-43B6-9283-A796A294B8D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{FFD5A8FE-0F64-4CE8-A770-FC6E061DEA26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFD5A8FE-0F64-4CE8-A770-FC6E061DEA26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFD5A8FE-0F64-4CE8-A770-FC6E061DEA26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0395010-ED2B-43B6-9283-A796A294B8D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0395010-ED2B-43B6-9283-A796A294B8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0395010-ED2B-43B6-9283-A796A294B8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0395010-ED2B-43B6-9283-A796A294B8D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
