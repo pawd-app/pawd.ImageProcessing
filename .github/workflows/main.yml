@@ -27,19 +27,19 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore JobManagement.Sdk project
-        run: dotnet restore ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj
+        run: dotnet restore ./JobManagement.Sdk/JobManagement.Sdk.csproj
 
       - name: Clean JobManagement.Sdk project
-        run: dotnet clean ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj
+        run: dotnet clean ./JobManagement.Sdk/JobManagement.Sdk.csproj
 
       - name: Build JobManagement.Sdk project
-        run: dotnet build ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj --configuration Release
+        run: dotnet build ./JobManagement.Sdk/JobManagement.Sdk.csproj --configuration Release
 
       - name: Pack JobManagement.Sdk with auto-incremented version
         run: |
           VERSION="1.0.${{ github.run_number }}"
           echo "Packaging with version $VERSION"
-          dotnet pack ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj \
+          dotnet pack ./JobManagement.Sdk/JobManagement.Sdk.csproj \
             --configuration Release \
             -p:PackageVersion=$VERSION \
             --output ./artifacts
