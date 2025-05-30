@@ -1,0 +1,63 @@
+name: Build and Publish NuGet Packages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show commit info
+        run: |
+          echo "Current commit SHA: ${{ github.sha }}"
+          git log -1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore JobManagement.Sdk project
+        run: dotnet restore ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj
+
+      - name: Clean JobManagement.Sdk project
+        run: dotnet clean ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj
+
+      - name: Build JobManagement.Sdk project
+        run: dotnet build ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj --configuration Release
+
+      - name: Pack JobManagement.Sdk with auto-incremented version
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          echo "Packaging with version $VERSION"
+          dotnet pack ./pawd.ImageProcessing/JobManagement.Sdk/JobManagement.Sdk.csproj \
+            --configuration Release \
+            -p:PackageVersion=$VERSION \
+            --output ./artifacts
+
+      - name: Publish to GitHub Packages and NuGet.org
+        run: |
+          for nupkg in ./artifacts/*.nupkg; do
+            echo "Publishing $nupkg to GitHub Packages"
+            dotnet nuget push "$nupkg" \
+              --source "https://nuget.pkg.github.com/pawd-app/index.json" \
+              --api-key ${{ secrets.TOKEN }} \
+              --skip-duplicate
+            echo "Publishing $nupkg to NuGet.org"
+            dotnet nuget push "$nupkg" \
+              --source "https://api.nuget.org/v3/index.json" \
+              --api-key ${{ secrets.NUGET_ORG_API_KEY }} \
+              --skip-duplicate
+          done
+
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.TOKEN }}
