@@ -22,6 +22,9 @@ public static class JobManagementServiceCollectionExtensions
         if (dbContextConfig != null)
         {
             services.AddDbContext<JobWorkersDbContext>(dbContextConfig);
+            services.BuildServiceProvider()
+                  .GetRequiredService<JobWorkersDbContext>()
+                  .Database.Migrate();
         }
 
         return services;
