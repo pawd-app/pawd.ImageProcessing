@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Jobs.DataAccess
 {
-    [Table("Job", Schema = "Dagable")]
+    [Table("Job")]
     public class Job : DomainObject
     {
         [Column(TypeName = "char(36)")]

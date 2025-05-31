@@ -4,16 +4,19 @@ using Jobs.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Jobs.DataAccess.Migrations
+namespace JobManagement.DataAccess.Migrations
 {
     [DbContext(typeof(JobWorkersDbContext))]
-    partial class JobWorkersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250531173918_schemaChange")]
+    partial class schemaChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
