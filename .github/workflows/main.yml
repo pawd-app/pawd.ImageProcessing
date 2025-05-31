@@ -28,17 +28,17 @@ jobs:
 
       - name: Restore only JobManagement.DataAccess and JobManagement.Sdk
         run: |
-          dotnet restore ./JobManagement.DataAccess/JobManagement.DataAccess.csproj
+          dotnet restore ./Jobs.DataAccess/JobManagement.DataAccess.csproj
           dotnet restore ./JobManagement.Sdk/JobManagement.Sdk.csproj
       
       - name: Clean only JobManagement.DataAccess and JobManagement.Sdk
         run: |
-          dotnet clean ./JobManagement.DataAccess/JobManagement.DataAccess.csproj --configuration Release
+          dotnet clean ./Jobs.DataAccess/JobManagement.DataAccess.csproj --configuration Release
           dotnet clean ./JobManagement.Sdk/JobManagement.Sdk.csproj --configuration Release
       
       - name: Build only JobManagement.DataAccess and JobManagement.Sdk
         run: |
-          dotnet build ./JobManagement.DataAccess/JobManagement.DataAccess.csproj --configuration Release --no-restore
+          dotnet build ./Jobs.DataAccess/JobManagement.DataAccess.csproj --configuration Release --no-restore
           dotnet build ./JobManagement.Sdk/JobManagement.Sdk.csproj --configuration Release --no-restore
       
       - name: Pack JobManagement.DataAccess and JobManagement.Sdk
