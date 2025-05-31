@@ -25,26 +25,26 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      
-      - name: Restore all projects except Jobs.ImageProcess.UploadValidation
+
+      - name: Restore all projects except excluded ones
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
             echo "Restoring $proj"
             dotnet restore "$proj"
           done
-
-      - name: Clean all projects except Jobs.ImageProcess.UploadValidation
+      
+      - name: Clean all projects except excluded ones
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
-            echo "clean $proj"
-            dotnet clean "$proj"
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
+            echo "Cleaning $proj"
+            dotnet clean "$proj" --configuration Release
           done
-
-      - name: Build all projects except Jobs.ImageProcess.UploadValidation
+      
+      - name: Build all projects except excluded ones
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
-            echo "build $proj"
-            dotnet build "$proj"
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
+            echo "Building $proj"
+            dotnet build "$proj" --configuration Release --no-restore
           done
   
       - name: Pack JobManagement.Sdk and JobManagement.DataAccess with auto-incremented version
