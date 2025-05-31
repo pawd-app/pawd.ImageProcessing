@@ -26,23 +26,23 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       
-      - name: Restore all projects except Jobs.ImageProcessing.Workers
+      - name: Restore all projects except Jobs.ImageProcess.UploadValidation
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*"); do
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
             echo "Restoring $proj"
             dotnet restore "$proj"
           done
 
-      - name: Clean all projects except Jobs.ImageProcessing.Workers
+      - name: Clean all projects except Jobs.ImageProcess.UploadValidation
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*"); do
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
             echo "clean $proj"
             dotnet clean "$proj"
           done
 
-      - name: Build all projects except Jobs.ImageProcessing.Workers
+      - name: Build all projects except Jobs.ImageProcess.UploadValidation
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*"); do
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
             echo "build $proj"
             dotnet build "$proj"
           done
