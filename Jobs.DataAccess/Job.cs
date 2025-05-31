@@ -7,6 +7,7 @@ namespace Jobs.DataAccess
     [Table("Job")]
     public class Job : DomainObject
     {
+        [Key]
         [Column(TypeName = "char(36)")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid JobGuid { get; set; }

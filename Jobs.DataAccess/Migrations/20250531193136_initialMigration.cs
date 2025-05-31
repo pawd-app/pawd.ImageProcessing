@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -19,9 +18,6 @@ namespace JobManagement.DataAccess.Migrations
                 name: "Job",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
-                        .Annotation("MySql:Identity", "1,1"),
                     JobGuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     UserGuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     InstanceName = table.Column<string>(type: "longtext", nullable: false)
@@ -37,7 +33,7 @@ namespace JobManagement.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Job", x => x.Id);
+                    table.PrimaryKey("PK_Job", x => x.JobGuid);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
         }

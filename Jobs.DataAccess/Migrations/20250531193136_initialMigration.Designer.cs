@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JobManagement.DataAccess.Migrations
 {
     [DbContext(typeof(JobWorkersDbContext))]
-    [Migration("20250531190455_initialMigration")]
+    [Migration("20250531193136_initialMigration")]
     partial class initialMigration
     {
         /// <inheritdoc />
@@ -27,11 +27,9 @@ namespace JobManagement.DataAccess.Migrations
 
             modelBuilder.Entity("Jobs.DataAccess.Job", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("JobGuid")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -48,10 +46,6 @@ namespace JobManagement.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("JobGuid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -62,7 +56,7 @@ namespace JobManagement.DataAccess.Migrations
                     b.Property<Guid>("UserGuid")
                         .HasColumnType("char(36)");
 
-                    b.HasKey("Id");
+                    b.HasKey("JobGuid");
 
                     b.ToTable("Job");
                 });
