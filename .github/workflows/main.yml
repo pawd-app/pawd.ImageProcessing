@@ -26,38 +26,29 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore all projects except excluded ones
+      - name: Restore only JobManagement.DataAccess and JobManagement.Sdk
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
-            echo "Restoring $proj"
-            dotnet restore "$proj"
-          done
+          dotnet restore ./JobManagement.DataAccess/JobManagement.DataAccess.csproj
+          dotnet restore ./JobManagement.Sdk/JobManagement.Sdk.csproj
       
-      - name: Clean all projects except excluded ones
+      - name: Clean only JobManagement.DataAccess and JobManagement.Sdk
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
-            echo "Cleaning $proj"
-            dotnet clean "$proj" --configuration Release
-          done
+          dotnet clean ./JobManagement.DataAccess/JobManagement.DataAccess.csproj --configuration Release
+          dotnet clean ./JobManagement.Sdk/JobManagement.Sdk.csproj --configuration Release
       
-      - name: Build all projects except excluded ones
+      - name: Build only JobManagement.DataAccess and JobManagement.Sdk
         run: |
-          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*" ! -path "*/Jobs.ImageProcess.UploadValidation/*"); do
-            echo "Building $proj"
-            dotnet build "$proj" --configuration Release --no-restore
-          done
-  
-      - name: Pack JobManagement.Sdk and JobManagement.DataAccess with auto-incremented version
+          dotnet build ./JobManagement.DataAccess/JobManagement.DataAccess.csproj --configuration Release --no-restore
+          dotnet build ./JobManagement.Sdk/JobManagement.Sdk.csproj --configuration Release --no-restore
+      
+      - name: Pack JobManagement.DataAccess and JobManagement.Sdk
         run: |
           VERSION="1.0.${{ github.run_number }}"
-          echo "Packaging with version $VERSION"
-          # Package JobManagement.Sdk
-          dotnet pack ./JobManagement.Sdk/JobManagement.Sdk.csproj \
+          dotnet pack ./JobManagement.DataAccess/JobManagement.DataAccess.csproj \
             --configuration Release \
             -p:PackageVersion=$VERSION \
             --output ./artifacts
-          # Package JobManagement.DataAccess
-          dotnet pack ./JobManagement.DataAccess/JobManagement.DataAccess.csproj \
+          dotnet pack ./JobManagement.Sdk/JobManagement.Sdk.csproj \
             --configuration Release \
             -p:PackageVersion=$VERSION \
             --output ./artifacts
