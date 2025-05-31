@@ -44,7 +44,7 @@ jobs:
       - name: Pack JobManagement.DataAccess and JobManagement.Sdk
         run: |
           VERSION="1.0.${{ github.run_number }}"
-          dotnet pack ./JobManagement.DataAccess/JobManagement.DataAccess.csproj \
+          dotnet pack ./Jobs.DataAccess/JobManagement.DataAccess.csproj \
             --configuration Release \
             -p:PackageVersion=$VERSION \
             --output ./artifacts
