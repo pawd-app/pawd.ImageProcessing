@@ -26,14 +26,14 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore all projects
-        run: dotnet restore
-
-      - name: Clean all projects
-        run: dotnet clean
-
-      - name: Build all projects
-        run: dotnet build --configuration Release
+      - name: Restore all except Jobs.ImageProcessing.Workers
+        run: dotnet restore --ignore-project-references "**/Jobs.ImageProcessing.Workers/*"
+  
+      - name: Clean all except Jobs.ImageProcessing.Workers
+        run: dotnet clean --configuration Release --project "**/*.csproj" --exclude "**/Jobs.ImageProcessing.Workers/*"
+      
+      - name: Build all except Jobs.ImageProcessing.Workers
+        run: dotnet build --configuration Release --no-restore --project "**/*.csproj" --exclude "**/Jobs.ImageProcessing.Workers/*"
 
       - name: Pack JobManagement.Sdk and JobManagement.DataAccess with auto-incremented version
         run: |
