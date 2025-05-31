@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Jobs.DataAccess.Migrations
+namespace JobManagement.DataAccess.Migrations
 {
     [DbContext(typeof(JobWorkersDbContext))]
-    [Migration("20250528204508_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250531180713_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,10 @@ namespace Jobs.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<Guid>("JobGuid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -55,15 +59,12 @@ namespace Jobs.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("RequestGuid")
-                        .HasColumnType("char(36)");
-
                     b.Property<Guid>("UserGuid")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Job", "Dagable");
+                    b.ToTable("Job");
                 });
 #pragma warning restore 612, 618
         }
