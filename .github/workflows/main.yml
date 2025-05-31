@@ -25,16 +25,28 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
-      - name: Restore all except Jobs.ImageProcessing.Workers
-        run: dotnet restore --ignore-project-references "**/Jobs.ImageProcessing.Workers/*"
-  
-      - name: Clean all except Jobs.ImageProcessing.Workers
-        run: dotnet clean --configuration Release --project "**/*.csproj" --exclude "**/Jobs.ImageProcessing.Workers/*"
       
-      - name: Build all except Jobs.ImageProcessing.Workers
-        run: dotnet build --configuration Release --no-restore --project "**/*.csproj" --exclude "**/Jobs.ImageProcessing.Workers/*"
+      - name: Restore all projects except Jobs.ImageProcessing.Workers
+        run: |
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*"); do
+            echo "Restoring $proj"
+            dotnet restore "$proj"
+          done
 
+      - name: Clean all projects except Jobs.ImageProcessing.Workers
+        run: |
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*"); do
+            echo "clean $proj"
+            dotnet clean "$proj"
+          done
+
+      - name: Build all projects except Jobs.ImageProcessing.Workers
+        run: |
+          for proj in $(find . -name "*.csproj" ! -path "*/Jobs.ImageProcessing.Workers/*"); do
+            echo "build $proj"
+            dotnet build "$proj"
+          done
+  
       - name: Pack JobManagement.Sdk and JobManagement.DataAccess with auto-incremented version
         run: |
           VERSION="1.0.${{ github.run_number }}"
