@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JobManagement.DataAccess.Migrations
 {
     [DbContext(typeof(JobWorkersDbContext))]
-    [Migration("20250531180713_initialMigration")]
+    [Migration("20250531190455_initialMigration")]
     partial class initialMigration
     {
         /// <inheritdoc />
