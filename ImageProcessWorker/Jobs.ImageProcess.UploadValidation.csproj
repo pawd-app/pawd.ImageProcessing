@@ -17,27 +17,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="models\yolo11x.onnx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="models\yolo12x.onnx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="models\yolov10x.onnx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="models\yolov3.cfg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="models\yolov3.weights">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="models\yolov8x.onnx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.1" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.1.1" />
     <PackageReference Include="Emgu.CV" Version="4.10.0.5680" />
 	<PackageReference Include="Emgu.CV.Runtime.Windows" Version="4.8.1" />
 	<PackageReference Include="IVilson.AI.Yolov7net" Version="1.0.10" />
@@ -53,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\JobManagement.Sdk\JobManagement.Sdk.csproj" />
     <ProjectReference Include="..\Jobs.DataAccess\JobManagement.DataAccess.csproj" />
   </ItemGroup>
 

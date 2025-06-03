@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Jobs.DataAccess
+﻿namespace Jobs.DataAccess
 {
     public class DomainObject
     {

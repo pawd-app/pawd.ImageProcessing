@@ -6,8 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System.Reflection;
+using Amazon.Runtime;
+using Amazon.S3;
+using JobManagement.Sdk;
+using Jobs.ImageProcess.UploadValidation;
 
-using IHost host = CreateHostBuilder(args).Build();
+using var host = CreateHostBuilder(args).Build();
 using var scope = host.Services.CreateScope();
 
 var services = scope.ServiceProvider;
@@ -16,12 +20,15 @@ services.GetRequiredService<JobWorkersDbContext>().Database.Migrate();
 
 try
 {
+
     await services.GetRequiredService<Runner>().Run(args);
 }
 catch (Exception e)
 {
     Console.WriteLine(e.Message);
 }
+
+return;
 
 static IHostBuilder CreateHostBuilder(string[] strings)
 {
@@ -34,7 +41,7 @@ static IHostBuilder CreateHostBuilder(string[] strings)
         .ConfigureServices((context, services) =>
         {
             var migrationsAssembly = typeof(JobWorkersDbContext).GetTypeInfo().Assembly.GetName().Name;
-            string mySqlConnectionStr = context.Configuration.GetConnectionString("DefaultConnection");
+            var mySqlConnectionStr = context.Configuration.GetConnectionString("DefaultConnection");
 
             services
                 .AddDbContext<JobWorkersDbContext>(opt =>
@@ -44,5 +51,23 @@ static IHostBuilder CreateHostBuilder(string[] strings)
                 })
                 .AddScoped<Runner>()
                 .Configure<AppOptions>(context.Configuration);
+
+            services.AddJobManagementSystem(
+                options => { options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly)); });
+            services.AddScoped<IImageProcessor, ImageProcessor>();
+            services.Configure<GarageS3Settings>(context.Configuration.GetSection("GarageS3"));
+            services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
+                new BasicAWSCredentials(
+                    context.Configuration["GarageS3:AccessKey"],
+                    context.Configuration["GarageS3:SecretKey"]
+                ),
+                new AmazonS3Config
+                {
+                    ServiceURL = context.Configuration["GarageS3:ServiceURL"],
+                    ForcePathStyle = true,
+                    UseHttp = true,
+                    AuthenticationRegion = "garage",
+                }
+            ));
         });
 }

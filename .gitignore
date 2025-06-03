@@ -6,11 +6,7 @@
 /ImageProcessWorker/models
 /ImageProcessWorker/obj
 /JobManagement.Sdk/obj
-/Jobs.DataAccess/obj
-/Jobs.DataAccess/obj
-/Jobs.DataAccess/obj
-/Jobs.DataAccess/obj
 /Jobs.DataAccess/bin
 /JobManagement.Sdk/bin
 /Jobs.DataAccess/obj
-/Jobs.DataAccess/obj
+.idea/

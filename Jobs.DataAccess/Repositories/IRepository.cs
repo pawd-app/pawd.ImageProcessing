@@ -7,5 +7,7 @@ namespace JobManagement.DataAccess.Repositories
         Task<Entity> InsertAsync(Entity entity, CancellationToken ct);
 
         Task<Entity> UpdateAsync(Entity entity, CancellationToken ct);
+
+        Task<Job> GetByIdAsync(Guid jobGuid, CancellationToken ct);
     }
 }
