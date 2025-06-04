@@ -28,6 +28,7 @@ namespace JobManagement.DataAccess.Repositories
             entity.JobGuid = Guid.Empty;
 
             _db.Jobs.Add(entity);
+            
             await _db.SaveChangesAsync(ct);
 
             await _db.Entry(entity).ReloadAsync(ct);

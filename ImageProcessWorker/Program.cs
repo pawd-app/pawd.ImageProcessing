@@ -8,7 +8,6 @@ using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System.Reflection;
 using Amazon.Runtime;
 using Amazon.S3;
-using JobManagement.Sdk;
 using Jobs.ImageProcess.UploadValidation;
 
 using var host = CreateHostBuilder(args).Build();

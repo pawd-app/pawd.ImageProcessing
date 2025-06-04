@@ -19,16 +19,11 @@ public class ImageProcessor : IImageProcessor
     private readonly SKPaint _rectPaint;
     private readonly SKPaint _textPaint;
     private readonly IJobFactory _jobFactory;
-    private readonly AppOptions _options;
     private readonly IAmazonS3 _s3Client;
-    private readonly GarageS3Settings _s3Settings;
 
-    public ImageProcessor(IOptions<AppOptions> options, IAmazonS3 s3Client,
-        IOptions<GarageS3Settings> s3Settings, IJobFactory jobFactory)
+    public ImageProcessor(IAmazonS3 s3Client, IJobFactory jobFactory)
     {
-        _options = options.Value;
         _s3Client = s3Client;
-        _s3Settings = s3Settings.Value;
         _jobFactory = jobFactory;
         
         _yolo = new Yolov8("models/yolo12x.onnx", false); //todo make dynamic
