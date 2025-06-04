@@ -15,15 +15,12 @@ namespace Jobs.ImageProcess.UploadValidation
     {
         private readonly AppOptions _options;
         private readonly IAmazonS3 _s3Client;
-        private readonly GarageS3Settings _s3Settings;
         private readonly IImageProcessor _imageProcessor;
 
-        public Runner(IOptions<AppOptions> options, IAmazonS3 s3Client,
-            IOptions<GarageS3Settings> s3Settings, IImageProcessor imageProcessor)
+        public Runner(IOptions<AppOptions> options, IAmazonS3 s3Client, IImageProcessor imageProcessor)
         {
             _options = options.Value;
             _s3Client = s3Client;
-            _s3Settings = s3Settings.Value;
             _imageProcessor = imageProcessor;
         }
 
@@ -76,7 +73,6 @@ namespace Jobs.ImageProcess.UploadValidation
         {
             try
             {
-                // Download the file from S3
                 var getObjectRequest = new GetObjectRequest
                 {
                     BucketName = bucketInfo.Bucket,
@@ -85,9 +81,7 @@ namespace Jobs.ImageProcess.UploadValidation
 
                 using var response = await _s3Client.GetObjectAsync(getObjectRequest);
                 await using var responseStream = response.ResponseStream;
-                // Create a temporary file to store the downloaded image
                 var tempInputPath = Path.GetTempFileName();
-                var outputPath = $"results/result_{Path.GetFileNameWithoutExtension(bucketInfo.ObjectKey)}.jpg";
             
                 try
                 {
@@ -96,7 +90,7 @@ namespace Jobs.ImageProcess.UploadValidation
                         await responseStream.CopyToAsync(fileStream);
                     }
 
-                    await _imageProcessor.ProcessImage(tempInputPath, outputPath, jobGuid);
+                    await _imageProcessor.ProcessImage(tempInputPath, getObjectRequest.Key, jobGuid);
                 }
                 finally
                 {
