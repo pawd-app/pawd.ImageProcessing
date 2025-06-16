@@ -14,7 +14,7 @@ namespace JobManagement.DataAccess.Repositories
         
         public async Task<Job> GetByIdAsync(Guid jobGuid, CancellationToken ct)
         {
-            return await _db.Jobs.FirstOrDefaultAsync(x => x.JobGuid == jobGuid, ct);
+            return await _db.Jobs.AsNoTracking().FirstOrDefaultAsync(x => x.JobGuid == jobGuid, ct);
         }
 
         public async Task<Job> InsertAsync(Job entity, CancellationToken ct)
