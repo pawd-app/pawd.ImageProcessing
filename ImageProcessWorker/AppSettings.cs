@@ -5,7 +5,8 @@
         public int BatchSize { get; set; }
         public ConnectionStrings ConnectionStrings { get; set; }
         public RabbitMq RabbitMq { get; set; }
-
+        
+        public GarageS3Settings S3Settings { get; set; }
     }
     public class ConnectionStrings
     {
@@ -25,6 +26,7 @@
         public string ServiceURL { get; set; }
         public string AccessKey { get; set; }
         public string SecretKey { get; set; }
-        public string BucketName { get; set; }
+        public string FetchFromBucketName { get; set; }
+        public string PushToBucketName { get; set; }
     }
 }

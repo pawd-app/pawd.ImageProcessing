@@ -33,14 +33,19 @@ static IHostBuilder CreateHostBuilder(string[] strings)
 {
     return Host.CreateDefaultBuilder()
         
-          .ConfigureAppConfiguration(app =>
+          .ConfigureAppConfiguration((hostingContext, config) =>
           {
-              app.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+              config.SetBasePath(Directory.GetCurrentDirectory())
+                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                  .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+            
+              config.AddEnvironmentVariables();
           })
         .ConfigureServices((context, services) =>
         {
+            var configuration = context.Configuration;
             var migrationsAssembly = typeof(JobWorkersDbContext).GetTypeInfo().Assembly.GetName().Name;
-            var mySqlConnectionStr = context.Configuration.GetConnectionString("DefaultConnection");
+            var mySqlConnectionStr = configuration.GetConnectionString("DefaultConnection");
 
             services
                 .AddDbContext<JobWorkersDbContext>(opt =>
@@ -49,12 +54,12 @@ static IHostBuilder CreateHostBuilder(string[] strings)
                     opt.UseMySql(ServerVersion.AutoDetect(mySqlConnectionStr), b => b.SchemaBehavior(MySqlSchemaBehavior.Translate, (schema, entity) => $"{schema ?? "dbo"}_{entity}"));
                 })
                 .AddScoped<Runner>()
-                .Configure<AppOptions>(context.Configuration);
+                .Configure<AppOptions>(configuration);
 
             services.AddJobManagementSystem(
                 options => { options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly)); });
             services.AddScoped<IImageProcessor, ImageProcessor>();
-            services.Configure<GarageS3Settings>(context.Configuration.GetSection("GarageS3"));
+            services.Configure<GarageS3Settings>(configuration.GetSection("GarageS3"));
             services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
                 new BasicAWSCredentials(
                     context.Configuration["GarageS3:AccessKey"],
