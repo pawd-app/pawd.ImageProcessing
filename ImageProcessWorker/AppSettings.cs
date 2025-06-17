@@ -6,7 +6,7 @@
         public ConnectionStrings ConnectionStrings { get; set; }
         public RabbitMq RabbitMq { get; set; }
         
-        public GarageS3Settings S3Settings { get; set; }
+        public S3Settings S3Settings { get; set; }
     }
     public class ConnectionStrings
     {
@@ -21,7 +21,7 @@
         public string QueueName { get; set; }
     }
     
-    public class GarageS3Settings
+    public class S3Settings
     {
         public string ServiceURL { get; set; }
         public string AccessKey { get; set; }

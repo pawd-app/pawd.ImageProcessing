@@ -59,15 +59,15 @@ static IHostBuilder CreateHostBuilder(string[] strings)
             services.AddJobManagementSystem(
                 options => { options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly)); });
             services.AddScoped<IImageProcessor, ImageProcessor>();
-            services.Configure<GarageS3Settings>(configuration.GetSection("GarageS3"));
+            services.Configure<S3Settings>(configuration.GetSection("S3"));
             services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
                 new BasicAWSCredentials(
-                    context.Configuration["GarageS3:AccessKey"],
-                    context.Configuration["GarageS3:SecretKey"]
+                    context.Configuration["S3:AccessKey"],
+                    context.Configuration["S3:SecretKey"]
                 ),
                 new AmazonS3Config
                 {
-                    ServiceURL = context.Configuration["GarageS3:ServiceURL"],
+                    ServiceURL = context.Configuration["S3:ServiceURL"],
                     ForcePathStyle = true,
                     UseHttp = true,
                     AuthenticationRegion = "garage",

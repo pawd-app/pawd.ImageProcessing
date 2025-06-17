@@ -21,13 +21,13 @@ public class ImageProcessor : IImageProcessor
     private readonly SKPaint _textPaint;
     private readonly IJobFactory _jobFactory;
     private readonly IAmazonS3 _s3Client;
-    private readonly GarageS3Settings _garageS3Settings;
+    private readonly S3Settings _S3Settings;
 
-    public ImageProcessor(IAmazonS3 s3Client, IJobFactory jobFactory, IOptions<GarageS3Settings> garageSettings)
+    public ImageProcessor(IAmazonS3 s3Client, IJobFactory jobFactory, IOptions<S3Settings> garageSettings)
     {
         _s3Client = s3Client;
         _jobFactory = jobFactory;
-        _garageS3Settings = garageSettings.Value;
+        _S3Settings = garageSettings.Value;
         
         _yolo = new Yolov8("models/yolo12x.onnx", false); //todo make dynamic
         _yolo.SetupYoloDefaultLabels();
@@ -76,7 +76,7 @@ public class ImageProcessor : IImageProcessor
 
         var putRequest = new PutObjectRequest
         {
-            BucketName = _garageS3Settings.PushToBucketName,
+            BucketName = _S3Settings.PushToBucketName,
             Key = objectKey,
             InputStream = memoryStream,
             ContentType = "image/jpg",
@@ -85,12 +85,12 @@ public class ImageProcessor : IImageProcessor
         };
 
         jobDetails.YoloPredictions = predictions.Select(x => x.Label.Name).ToList();
-        jobDetails.Bucket = _garageS3Settings.PushToBucketName;
+        jobDetails.Bucket = _S3Settings.PushToBucketName;
         
         await _s3Client.PutObjectAsync(putRequest);
         
         
-        var resourceUrl = $"{_garageS3Settings.ServiceURL}/{_garageS3Settings.PushToBucketName}/{objectKey}";
+        var resourceUrl = $"{_S3Settings.ServiceURL}/{_S3Settings.PushToBucketName}/{objectKey}";
        
         jobDetails.ImageUrl = resourceUrl;
         await _jobFactory.UpdateJobAsync(jobGuid, "FileProcessor.Validated", jobDetails);
