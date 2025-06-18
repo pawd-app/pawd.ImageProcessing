@@ -26,8 +26,8 @@ The worker expects configuration in `appsettings.json` (or via environment varia
     "ServiceURL": "<s3-compatible endpoint>",
     "AccessKey": "<access key>",
     "SecretKey": "<secret key>",
-    "FetchFromBucketName": "<input bucket name>",
-    "PushToBucketName": "<output bucket name>"
+    "UploadBucketName": "<input bucket name>",
+    "ImagePredictionOutputBucketName": "<output bucket name>"
   }
 }
 ```
@@ -69,7 +69,7 @@ dotnet restore
 dotnet build
 ```
 
-Populate appsettings.json (or set env variables like RabbitMq__HostName, S3__FetchFromBucketName, etc.)
+Populate appsettings.json (or set env variables like RabbitMq__HostName, S3__UploadBucketName, etc.)
 
 Run the worker:
 

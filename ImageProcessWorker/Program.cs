@@ -20,7 +20,7 @@ services.GetRequiredService<JobWorkersDbContext>().Database.Migrate();
 try
 {
 
-    await services.GetRequiredService<Runner>().Run(args);
+    await services.GetRequiredService<Runner>().RunAsync(args);
 }
 catch (Exception e)
 {
@@ -59,15 +59,15 @@ static IHostBuilder CreateHostBuilder(string[] strings)
             services.AddJobManagementSystem(
                 options => { options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly)); });
             services.AddScoped<IImageProcessor, ImageProcessor>();
-            services.Configure<S3Settings>(configuration.GetSection("S3"));
+            services.Configure<S3Settings>(configuration.GetSection("S3Settings"));
             services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
                 new BasicAWSCredentials(
-                    context.Configuration["S3:AccessKey"],
-                    context.Configuration["S3:SecretKey"]
+                    context.Configuration["S3Settings:AccessKey"],
+                    context.Configuration["S3Settings:SecretKey"]
                 ),
                 new AmazonS3Config
                 {
-                    ServiceURL = context.Configuration["S3:ServiceURL"],
+                    ServiceURL = context.Configuration["S3Settings:ServiceURL"],
                     ForcePathStyle = true,
                     UseHttp = true,
                     AuthenticationRegion = "garage",
