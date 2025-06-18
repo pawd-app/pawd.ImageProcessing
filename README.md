@@ -9,3 +9,9 @@
  ## ImageProcessWorker
 
  See [ReadME.md](./ImageProcessWorker/ReadME.md)
+
+ ## JobManagement.SDK
+
+ > ⚠️ **NOTE:**  This should be moved to the core library
+
+ See [ReadME.md](./JobManagement.Sdk/ReadME.md)
