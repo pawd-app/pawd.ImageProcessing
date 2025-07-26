@@ -6,7 +6,7 @@ A background worker service in the `pawd.ImageProcessing` solution that processe
 
 ---
 
-## 📝 Config via `appsettings.json`
+## Config via `appsettings.json`
 
 The worker expects configuration in `appsettings.json` (or via environment variables), for example:
 
@@ -77,7 +77,7 @@ Run the worker:
 dotnet run
 ```
 
-### 🔍 How It Works
+### How It Works
 Listens on a configured RabbitMQ queue.
 
 For each job:
@@ -88,7 +88,7 @@ For each job:
 
 All connection details (DB, MQ, S3) are controlled purely via configuration.
 
-### 📌 Summary
+### Summary
 Component: Queue-driven image processing worker
 
 Jobs: RabbitMQ → S3 → process → S3
