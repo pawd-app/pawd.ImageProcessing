@@ -1,6 +1,6 @@
 services:
   app:
-    image: jobsimageprocessuploadvalidation:dev
+    image: pawd-image-processor:latest
     container_name: jobsimageprocessuploadvalidation
     build:
       context: ..
