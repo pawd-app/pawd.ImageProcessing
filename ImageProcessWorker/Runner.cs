@@ -5,6 +5,7 @@ using Amazon.S3.Model;
 using ImageProcessWorker;
 using Jobs.DataAccess;
 using Jobs.ImageProcess.UploadValidation.models;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -12,7 +13,7 @@ using RabbitMQ.Client.Events;
 
 namespace Jobs.ImageProcess.UploadValidation
 {
-    internal class Runner
+    internal class Runner : BackgroundService
     {
         private readonly AppOptions _options;
         private readonly IAmazonS3 _s3Client;
@@ -34,18 +35,28 @@ namespace Jobs.ImageProcess.UploadValidation
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task RunAsync(string[] args)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var factory = CreateConnectionFactory();
-            
-            await using var connection = await factory.CreateConnectionAsync();
-            await using var channel = await connection.CreateChannelAsync();
 
-            await SetupQueueAsync(channel);
-            await SetupConsumerAsync(channel);
+            await using var connection = await factory.CreateConnectionAsync(stoppingToken);
+            await using var channel = await connection.CreateChannelAsync(null, stoppingToken);
 
-            _logger.LogInformation("Worker started, waiting for messages. Press any key to exit.");
-            Console.ReadLine();
+            await SetupQueueAsync(channel, stoppingToken);
+            await SetupConsumerAsync(channel, stoppingToken);
+
+            _logger.LogInformation("Worker started, waiting for messages.");
+
+            try
+            {
+                await Task.Delay(Timeout.Infinite, stoppingToken);
+            }
+            catch (TaskCanceledException)
+            {
+                // Expected on shutdown
+            }
+
+            _logger.LogInformation("Worker stopping.");
         }
 
         private ConnectionFactory CreateConnectionFactory()
@@ -60,7 +71,7 @@ namespace Jobs.ImageProcess.UploadValidation
             };
         }
 
-        private async Task SetupQueueAsync(IChannel channel)
+        private async Task SetupQueueAsync(IChannel channel, CancellationToken cancellationToken)
         {
             await channel.QueueDeclareAsync(
                 queue: _options.RabbitMq.QueueName,
@@ -69,13 +80,12 @@ namespace Jobs.ImageProcess.UploadValidation
                 autoDelete: false,
                 arguments: null);
 
-            await channel.BasicQosAsync(
-                prefetchSize: 0, 
-                prefetchCount: PrefetchCount, 
-                global: false);
+            await channel.BasicQosAsync(0, PrefetchCount, false);
+
+            await Task.CompletedTask;
         }
 
-        private async Task SetupConsumerAsync(IChannel channel)
+        private async Task SetupConsumerAsync(IChannel channel, CancellationToken cancellationToken)
         {
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.ReceivedAsync += async (model, ea) =>
@@ -87,8 +97,7 @@ namespace Jobs.ImageProcess.UploadValidation
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error processing message");
-                    // Consider implementing dead letter queue or retry logic
-                    await channel.BasicNackAsync(ea.DeliveryTag, false, false);
+                    await channel.BasicAckAsync(ea.DeliveryTag, false, cancellationToken);
                 }
             };
 
@@ -96,6 +105,8 @@ namespace Jobs.ImageProcess.UploadValidation
                 queue: _options.RabbitMq.QueueName,
                 autoAck: false,
                 consumer: consumer);
+
+            await Task.CompletedTask;
         }
 
         private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, IChannel channel)
@@ -108,7 +119,7 @@ namespace Jobs.ImageProcess.UploadValidation
 
             await ProcessJobAsync(jobDetails, job.JobGuid);
             await channel.BasicAckAsync(ea.DeliveryTag, false);
-            
+
             _logger.LogInformation("Successfully processed job {JobGuid}", job.JobGuid);
         }
 

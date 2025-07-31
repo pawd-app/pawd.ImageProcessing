@@ -10,3 +10,5 @@
 /JobManagement.Sdk/bin
 /Jobs.DataAccess/obj
 .idea/
+/ImageProcessWorker/publish
+/publish

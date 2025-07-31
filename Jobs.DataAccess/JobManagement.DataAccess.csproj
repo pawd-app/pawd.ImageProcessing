@@ -12,4 +12,8 @@
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.10" />
 	  <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

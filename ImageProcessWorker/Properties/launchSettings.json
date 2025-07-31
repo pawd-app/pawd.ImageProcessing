@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Jobs.ImageProcess.UploadValidation": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

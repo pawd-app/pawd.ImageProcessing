@@ -1,0 +1,20 @@
+services:
+  app:
+    image: pawd-image-processor:latest
+    container_name: jobsimageprocessuploadvalidation
+    build:
+      context: ..
+      dockerfile: ImageProcessWorker/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=192.168.8.160;Port=3306;Database=pawddev;Uid=root;Pwd=TgvYL/k6aRnPKF7U8G0bkAHDx++8P0Xs
+      - RabbitMq__HostName=192.168.8.160
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__QueueName=IMAGE_UPLOAD_VALIDATION
+      - S3Settings__ServiceURL=http://192.168.8.160:8333
+      - S3Settings__AccessKey=GK47bfc18bd9cc896f3683de60
+      - S3Settings__SecretKey=0d87b64e43eaf1074015aebe74c484e58ab9e36b9341db9d813592a53d7155e8
+      - S3Settings__UploadBucketName=pawd-dev-app-data
+      - S3Settings__ImagePredictionOutputBucketName=pawd-dev-app-data-outcomes
+      - S3Settings__UploadCompleteBucketName=1abb67c6-1b4d-4650-92fb-a84b4a8e9b45
+    restart: unless-stopped

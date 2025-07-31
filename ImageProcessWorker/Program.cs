@@ -1,77 +1,65 @@
-﻿using ImageProcessWorker;
+﻿using Amazon.Runtime;
+using Amazon.S3;
+using ImageProcessWorker;
 using Jobs.DataAccess;
+using Jobs.ImageProcess.UploadValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System.Reflection;
-using Amazon.Runtime;
-using Amazon.S3;
-using Jobs.ImageProcess.UploadValidation;
 
-using var host = CreateHostBuilder(args).Build();
-using var scope = host.Services.CreateScope();
+await Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration((hostingContext, config) =>
+    {
+        config.SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
+            .AddEnvironmentVariables();
+    })
+    .ConfigureServices((context, services) =>
+    {
+        var configuration = context.Configuration;
+        var migrationsAssembly = typeof(JobWorkersDbContext).GetTypeInfo().Assembly.GetName().Name;
+        var mySqlConnectionStr = configuration.GetConnectionString("DefaultConnection");
 
-var services = scope.ServiceProvider;
+        services
+            .AddDbContext<JobWorkersDbContext>(opt =>
+            {
+                opt.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly));
+                opt.UseMySql(ServerVersion.AutoDetect(mySqlConnectionStr), b => b.SchemaBehavior(MySqlSchemaBehavior.Translate, (schema, entity) => $"{schema ?? "dbo"}_{entity}"));
+            });
 
-services.GetRequiredService<JobWorkersDbContext>().Database.Migrate();
-
-try
-{
-
-    await services.GetRequiredService<Runner>().RunAsync(args);
-}
-catch (Exception e)
-{
-    Console.WriteLine(e.Message);
-}
-
-return;
-
-static IHostBuilder CreateHostBuilder(string[] strings)
-{
-    return Host.CreateDefaultBuilder()
-        
-          .ConfigureAppConfiguration((hostingContext, config) =>
-          {
-              config.SetBasePath(Directory.GetCurrentDirectory())
-                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                  .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
-            
-              config.AddEnvironmentVariables();
-          })
-        .ConfigureServices((context, services) =>
+        // Run migrations at startup
+        using (var scope = services.BuildServiceProvider().CreateScope())
         {
-            var configuration = context.Configuration;
-            var migrationsAssembly = typeof(JobWorkersDbContext).GetTypeInfo().Assembly.GetName().Name;
-            var mySqlConnectionStr = configuration.GetConnectionString("DefaultConnection");
+            var db = scope.ServiceProvider.GetRequiredService<JobWorkersDbContext>();
+            db.Database.Migrate();
+        }
 
-            services
-                .AddDbContext<JobWorkersDbContext>(opt =>
-                {
-                    opt.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly));
-                    opt.UseMySql(ServerVersion.AutoDetect(mySqlConnectionStr), b => b.SchemaBehavior(MySqlSchemaBehavior.Translate, (schema, entity) => $"{schema ?? "dbo"}_{entity}"));
-                })
-                .AddScoped<Runner>()
-                .Configure<AppOptions>(configuration);
+        services.Configure<AppOptions>(configuration);
 
-            services.AddJobManagementSystem(
-                options => { options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly)); });
-            services.AddScoped<IImageProcessor, ImageProcessor>();
-            services.Configure<S3Settings>(configuration.GetSection("S3Settings"));
-            services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
-                new BasicAWSCredentials(
-                    context.Configuration["S3Settings:AccessKey"],
-                    context.Configuration["S3Settings:SecretKey"]
-                ),
-                new AmazonS3Config
-                {
-                    ServiceURL = context.Configuration["S3Settings:ServiceURL"],
-                    ForcePathStyle = true,
-                    UseHttp = true,
-                    AuthenticationRegion = "garage",
-                }
-            ));
-        });
-}
+        services.AddJobManagementSystem(
+            options => { options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr), sql => sql.MigrationsAssembly(migrationsAssembly)); });
+
+        services.AddScoped<IImageProcessor, ImageProcessor>();
+        services.Configure<S3Settings>(configuration.GetSection("S3Settings"));
+        services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
+            new BasicAWSCredentials(
+                context.Configuration["S3Settings:AccessKey"],
+                context.Configuration["S3Settings:SecretKey"]
+            ),
+            new AmazonS3Config
+            {
+                ServiceURL = context.Configuration["S3Settings:ServiceURL"],
+                ForcePathStyle = true,
+                UseHttp = true,
+                AuthenticationRegion = "garage",
+            }
+        ));
+
+        services.AddHostedService<Runner>();
+    })
+    .Build()
+    .RunAsync();
