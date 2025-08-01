@@ -32,8 +32,8 @@ public class ImageProcessor : IImageProcessor, IDisposable
     private const float TextOffsetY = 23f;
 
     public ImageProcessor(
-        IAmazonS3 s3Client, 
-        IJobFactory jobFactory, 
+        IAmazonS3 s3Client,
+        IJobFactory jobFactory,
         IOptions<S3Settings> s3Settings,
         ILogger<ImageProcessor> logger,
         string modelPath = "models/yolo12x.onnx")
@@ -42,7 +42,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
         _jobFactory = jobFactory ?? throw new ArgumentNullException(nameof(jobFactory));
         _s3Settings = s3Settings?.Value ?? throw new ArgumentNullException(nameof(s3Settings));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        
+
         _yolo = InitializeYolo(modelPath);
         _rectPaint = CreateRectanglePaint();
         _textPaint = CreateTextPaint();
@@ -54,15 +54,15 @@ public class ImageProcessor : IImageProcessor, IDisposable
 
         var job = await GetJobAsync(jobGuid);
         var jobDetails = DeserializeJobDetails(job.InstanceDetailsJson);
-        
+
         var processedImage = ProcessImageWithPredictions(imagePath);
         var predictions = _yolo.Predict(processedImage.originalImage);
-        
+        _logger.LogInformation($"Predictions: {string.Join(",", predictions.Select(x => $"{x.Label!.Name} : {Math.Round(x.Score, 2)}"))}");
         DrawPredictions(processedImage.canvas, predictions);
-        
+
         await SaveProcessedImageAsync(processedImage.originalImage, objectKey, jobDetails);
         await UpdateJobWithResults(jobGuid, objectKey, jobDetails, predictions);
-        
+
         _logger.LogInformation("Successfully processed image {ObjectKey}", objectKey);
     }
 
@@ -70,7 +70,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
     {
         if (!File.Exists(modelPath))
             throw new FileNotFoundException($"YOLO model not found at: {modelPath}");
-            
+
         var yolo = new Yolov8(modelPath, false);
         yolo.SetupYoloDefaultLabels();
         return yolo;
@@ -139,7 +139,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
     {
         var score = Math.Round(prediction.Score, 2);
         var labelText = $"{prediction.Label?.Name ?? "Unknown"} ({score})";
-        
+
         canvas.DrawRect(prediction.Rectangle, _rectPaint);
         canvas.DrawText(
             labelText,
@@ -153,7 +153,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
         using var memoryStream = new MemoryStream();
         if (!image.Encode(memoryStream, jobDetails.ImageFormat, ImageQuality))
             throw new InvalidOperationException("Failed to encode processed image");
-            
+
         memoryStream.Position = 0;
 
         var putRequest = new PutObjectRequest
@@ -175,9 +175,9 @@ public class ImageProcessor : IImageProcessor, IDisposable
         jobDetails.YoloPredictions = predictions.Select(p => p.Label?.Name ?? "Unknown").ToList();
         jobDetails.Bucket = _s3Settings.ImagePredictionOutputBucketName;
         jobDetails.ImageUrl = GenerateResourceUrl(objectKey);
-        
+
         await _jobFactory.UpdateJobAsync(jobGuid, "FileProcessor.Validated", jobDetails);
-        
+
         _logger.LogInformation("Updated job {JobGuid} with {PredictionCount} predictions. Resource URL: {ResourceUrl}",
             jobGuid, jobDetails.YoloPredictions.Count, jobDetails.ImageUrl);
     }
