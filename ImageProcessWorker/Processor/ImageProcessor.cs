@@ -36,7 +36,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
         IJobFactory jobFactory,
         IOptions<S3Settings> s3Settings,
         ILogger<ImageProcessor> logger,
-        string modelPath = "models/yolo12x.onnx")
+        string modelPath = "predictionmodels/yolo12x.onnx")
     {
         _s3Client = s3Client ?? throw new ArgumentNullException(nameof(s3Client));
         _jobFactory = jobFactory ?? throw new ArgumentNullException(nameof(jobFactory));
@@ -55,6 +55,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
         var job = await GetJobAsync(jobGuid);
         var jobDetails = DeserializeJobDetails(job.InstanceDetailsJson);
 
+        //todo here we need to catch the exceptions and update the job.
         var processedImage = ProcessImageWithPredictions(imagePath);
         var predictions = _yolo.Predict(processedImage.originalImage);
         _logger.LogInformation($"Predictions: {string.Join(",", predictions.Select(x => $"{x.Label!.Name} : {Math.Round(x.Score, 2)}"))}");

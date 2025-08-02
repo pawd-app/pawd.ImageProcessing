@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jobs.DataAccess\JobManagement.DataAccess.csproj" />
+    <ProjectReference Include="..\Jobs.DataAccess\JobManagement.DataAccess.csproj" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
