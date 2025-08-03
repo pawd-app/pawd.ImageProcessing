@@ -4,6 +4,7 @@ using Amazon.S3.Model;
 using ImageProcessWorker;
 using JobManagement.Sdk;
 using Jobs.DataAccess;
+using Jobs.ImageProcess.UploadValidation.Constants;
 using Jobs.ImageProcess.UploadValidation.models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -61,10 +62,34 @@ public class ImageProcessor : IImageProcessor, IDisposable
         _logger.LogInformation($"Predictions: {string.Join(",", predictions.Select(x => $"{x.Label!.Name} : {Math.Round(x.Score, 2)}"))}");
         DrawPredictions(processedImage.canvas, predictions);
 
-        await SaveProcessedImageAsync(processedImage.originalImage, objectKey, jobDetails);
-        await UpdateJobWithResults(jobGuid, objectKey, jobDetails, predictions);
+
+        if (ContainsAnimal(predictions, 0.6f))
+        {
+            await SaveProcessedImageAsync(processedImage.originalImage, objectKey, jobDetails,  _s3Settings.ImagePredictionOutputBucketName);
+            await UpdateJobWithResults(jobGuid, objectKey, jobDetails, predictions, _s3Settings.ImagePredictionOutputBucketName, Constants.FileValidated);
+        } else
+        {
+            await SaveProcessedImageAsync(processedImage.originalImage, objectKey, jobDetails, _s3Settings.ImagePredictionQuarantineBucketName);
+            await UpdateJobWithResults(jobGuid, objectKey, jobDetails, predictions, _s3Settings.ImagePredictionQuarantineBucketName, Constants.FileQuarantined);
+        }
 
         _logger.LogInformation("Successfully processed image {ObjectKey}", objectKey);
+    }
+
+    /// <summary>
+    /// Returns true if any of the YOLO predictions is an animal
+    /// with confidence ≥ threshold.
+    /// </summary>
+    /// <param name="predictions">Array of YOLO prediction results.</param>
+    /// <param name="threshold">
+    /// Confidence threshold (e.g. 0.5 for 50%).
+    /// </param>
+    bool ContainsAnimal(List<YoloPrediction> predictions, float threshold)
+    {
+        return predictions
+            .Any(pred =>
+                pred.Score >= threshold
+                && Constants.AnimalLabels.Contains(pred.Label!.Name!));
     }
 
     private IYoloNet InitializeYolo(string modelPath)
@@ -149,7 +174,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
             _textPaint);
     }
 
-    private async Task SaveProcessedImageAsync(SKBitmap image, string objectKey, ValidatedJobDetails jobDetails)
+    private async Task SaveProcessedImageAsync(SKBitmap image, string objectKey, ValidatedJobDetails jobDetails, string bucketName)
     {
         using var memoryStream = new MemoryStream();
         if (!image.Encode(memoryStream, jobDetails.ImageFormat, ImageQuality))
@@ -159,7 +184,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
 
         var putRequest = new PutObjectRequest
         {
-            BucketName = _s3Settings.ImagePredictionOutputBucketName,
+            BucketName = bucketName,
             Key = objectKey,
             InputStream = memoryStream,
             ContentType = jobDetails.ContentType,
@@ -171,16 +196,17 @@ public class ImageProcessor : IImageProcessor, IDisposable
         _logger.LogDebug("Uploaded processed image {ObjectKey} to S3", objectKey);
     }
 
-    private async Task UpdateJobWithResults(Guid jobGuid, string objectKey, ValidatedJobDetails jobDetails, IEnumerable<YoloPrediction> predictions)
+    private async Task UpdateJobWithResults(Guid jobGuid, string objectKey, ValidatedJobDetails jobDetails,
+        IEnumerable<YoloPrediction> predictions, string bucketName, string jobStatus)
     {
         jobDetails.YoloPredictions = predictions.Select(p => p.Label?.Name ?? "Unknown").ToList();
-        jobDetails.Bucket = _s3Settings.ImagePredictionOutputBucketName;
+        jobDetails.Bucket = bucketName;
         jobDetails.ImageUrl = GenerateResourceUrl(objectKey);
 
-        await _jobFactory.UpdateJobAsync(jobGuid, "FileProcessor.Validated", jobDetails);
+        await _jobFactory.UpdateJobAsync(jobGuid, jobStatus, jobDetails);
 
-        _logger.LogInformation("Updated job {JobGuid} with {PredictionCount} predictions. Resource URL: {ResourceUrl}",
-            jobGuid, jobDetails.YoloPredictions.Count, jobDetails.ImageUrl);
+        _logger.LogInformation("Updated job {JobGuid} with {PredictionCount} predictions and status {jobstatus}. Resource URL: {ResourceUrl}",
+            jobGuid, jobDetails.YoloPredictions.Count, jobStatus, jobDetails.ImageUrl);
     }
 
     private string GenerateResourceUrl(string objectKey) =>

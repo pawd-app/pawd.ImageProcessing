@@ -5,7 +5,6 @@
         public int BatchSize { get; init; }
         public ConnectionStrings ConnectionStrings { get; init; }
         public RabbitMq RabbitMq { get; init; }
-
         public S3Settings S3Settings { get; init; }
     }
 
@@ -30,5 +29,6 @@
         public string UploadBucketName { get; init; }
         public string UploadCompleteBucketName { get; set;  }
         public string ImagePredictionOutputBucketName { get; init; }
+        public string ImagePredictionQuarantineBucketName { get; init; }
     }
 }

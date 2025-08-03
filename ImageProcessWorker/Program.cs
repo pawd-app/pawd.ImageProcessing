@@ -34,7 +34,7 @@ internal class Program
                    .AddJsonFile($"appsettings.{ctx.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
                    .AddEnvironmentVariables();
             })
-            .UseSerilog()  // picks up the pre-built Log.Logger without reloadable wrapper
+            .UseSerilog() 
             .ConfigureServices((ctx, services) =>
             {
                 var c = ctx.Configuration;

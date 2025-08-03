@@ -78,7 +78,7 @@ dotnet run
 ```
 
 ### How It Works
-Listens on a configured RabbitMQ queue.
+Listens on a configured SQS.
 
 For each job:
 
