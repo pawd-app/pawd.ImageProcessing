@@ -159,7 +159,7 @@ namespace Jobs.ImageProcess.UploadValidation
             try
             {
                 await DownloadFromS3Async(jobDetails, tempFilePath);
-                await _imageProcessor.ProcessImage(tempFilePath, jobDetails.ObjectKey, jobGuid);
+                await _imageProcessor.ProcessImageAsync(tempFilePath, jobDetails.ObjectKey, jobGuid);
                 await MoveToCompletedBucketAsync(jobDetails);
                 
                 _logger.LogInformation("Completed processing job {JobGuid}", jobGuid);

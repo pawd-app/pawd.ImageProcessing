@@ -18,6 +18,7 @@
 
         public const string FileValidated = "FileProcessor.Validated";
         public const string FileQuarantined = "FileProcessor.Quarantined";
+        public const string FileProcessingFailed = "FileProcessor.Failed";
 
     }
 }

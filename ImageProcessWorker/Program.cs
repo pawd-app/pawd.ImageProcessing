@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Yolov7net;
 
 internal class Program
 {
@@ -52,6 +53,18 @@ internal class Program
 
                 services.AddScoped<IImageProcessor, ImageProcessor>();
                 services.Configure<S3Settings>(c.GetSection("S3Settings"));
+                services.AddSingleton<IYoloNet>(sp =>
+                {
+                    var modelPath = ctx.Configuration.GetValue<string>("Yolo:ModelPath")
+                                    ?? "predictionmodels/yolo12x.onnx";
+
+                    if (!File.Exists(modelPath))
+                        throw new FileNotFoundException($"YOLO model not found at: {modelPath}");
+
+                    var yolo = new Yolov8(modelPath, false);
+                    yolo.SetupYoloDefaultLabels();
+                    return yolo;
+                });
                 services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
                     new BasicAWSCredentials(
                         c["S3Settings:AccessKey"],
