@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<PackageId>pawd.JobManagement.SDK</PackageId>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jobs.DataAccess\JobManagement.DataAccess.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

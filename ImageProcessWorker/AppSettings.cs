@@ -2,11 +2,13 @@
 {
     public class AppOptions
     {
-        public int BatchSize { get; set; }
-        public ConnectionStrings ConnectionStrings { get; set; }
-        public RabbitMq RabbitMq { get; set; }
-
+        public int BatchSize { get; init; }
+        public ConnectionStrings ConnectionStrings { get; init; }
+        public RabbitMq RabbitMq { get; init; }
+        public S3Settings S3Settings { get; init; }
+        public ApiSettings ApiSettings { get; init; }
     }
+
     public class ConnectionStrings
     {
         public string DefaultConnection { get; set; }
@@ -17,5 +19,22 @@
         public string HostName { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public string QueueName { get; set; }
+    }
+
+    public class ApiSettings
+    {
+        public string ApiUrl { get; set; }
+    }
+
+    public class S3Settings
+    {
+        public string ServiceURL { get; init; }
+        public string AccessKey { get; init; }
+        public string SecretKey { get; init; }
+        public string UploadBucketName { get; init; }
+        public string UploadCompleteBucketName { get; set;  }
+        public string ImagePredictionOutputBucketName { get; init; }
+        public string ImagePredictionQuarantineBucketName { get; init; }
     }
 }

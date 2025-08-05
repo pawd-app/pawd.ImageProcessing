@@ -5,3 +5,10 @@
 /ImageProcessWorker/images
 /ImageProcessWorker/models
 /ImageProcessWorker/obj
+/JobManagement.Sdk/obj
+/Jobs.DataAccess/bin
+/JobManagement.Sdk/bin
+/Jobs.DataAccess/obj
+.idea/
+/ImageProcessWorker/publish
+/publish
