@@ -8,6 +8,7 @@ using Jobs.ImageProcess.UploadValidation.models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SkiaSharp;
+using System.Text;
 using System.Text.Json;
 using Yolov7net;
 
@@ -31,14 +32,18 @@ public class ImageProcessor : IImageProcessor, IDisposable
     private readonly IJobFactory _jobFactory;
     private readonly IAmazonS3 _s3Client;
     private readonly S3Settings _s3Settings;
+    private readonly ApiSettings _apiSettings;
     private readonly ILogger<ImageProcessor> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public ImageProcessor(
         IYoloNet yolo,                                       
         IAmazonS3 s3Client,
         IJobFactory jobFactory,
         IOptions<S3Settings> s3Settings,
-        ILogger<ImageProcessor> logger)
+        ILogger<ImageProcessor> logger,
+        IHttpClientFactory httpClientFactory,
+        IOptions<ApiSettings> apiSettings)
     {
         _yolo = yolo ?? throw new ArgumentNullException(nameof(yolo));
         _s3Client = s3Client ?? throw new ArgumentNullException(nameof(s3Client));
@@ -61,6 +66,8 @@ public class ImageProcessor : IImageProcessor, IDisposable
             Color = SKColors.Red,
             IsStroke = false
         };
+        _httpClientFactory = httpClientFactory;
+        _apiSettings = apiSettings.Value;
     }
 
     public async Task ProcessImageAsync(string imagePath, string objectKey, Guid jobGuid)
@@ -93,7 +100,7 @@ public class ImageProcessor : IImageProcessor, IDisposable
                 Constants.AnimalLabels.Contains(p.Label?.Name));
 
             var targetBucket = isAnimalPresent
-                ? _s3Settings.ImagePredictionOutputBucketName
+                ? _s3Settings.UploadCompleteBucketName
                 : _s3Settings.ImagePredictionQuarantineBucketName;
 
             await UploadProcessedImageAsync(bitmap, objectKey, details, targetBucket).ConfigureAwait(false);
@@ -160,11 +167,21 @@ public class ImageProcessor : IImageProcessor, IDisposable
     {
         details.YoloPredictions = predictions.Select(p => p.Label?.Name ?? "Unknown").ToList();
         details.Bucket = bucket;
+        var url = $"{_s3Settings.ServiceURL}/{bucket}/{objectKey}";
         details.ImageUrl = $"{_s3Settings.ServiceURL}/{bucket}/{objectKey}";
-
+        _logger.LogInformation("JOB DETIALS:{0}, {1}", jobGuid, details);
         await _jobFactory.UpdateJobAsync(jobGuid, status, details).ConfigureAwait(false);
         _logger.LogInformation("Job {JobGuid} updated with status {Status} and {Count} predictions",
             jobGuid, status, details.YoloPredictions.Count);
+
+        var client = _httpClientFactory.CreateClient();
+        _logger.LogInformation(_apiSettings.ApiUrl);
+        var updateEndpoint = new Uri(new Uri(_apiSettings.ApiUrl), $"/Files/{jobGuid}/url");
+        _logger.LogInformation(updateEndpoint.ToString());
+        var payload = JsonSerializer.Serialize(new { Url = url });
+        using var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        var response = await client.PutAsync(updateEndpoint, content, CancellationToken.None).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
     }
 
     public void Dispose()

@@ -52,7 +52,10 @@ internal class Program
                                s => s.MigrationsAssembly(migrationsAssembly)));
 
                 services.AddScoped<IImageProcessor, ImageProcessor>();
+                services.AddHttpClient();
+
                 services.Configure<S3Settings>(c.GetSection("S3Settings"));
+                services.Configure<ApiSettings>(c.GetSection("ApiSettings"));
                 services.AddSingleton<IYoloNet>(sp =>
                 {
                     var modelPath = ctx.Configuration.GetValue<string>("Yolo:ModelPath")

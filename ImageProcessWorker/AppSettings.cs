@@ -6,6 +6,7 @@
         public ConnectionStrings ConnectionStrings { get; init; }
         public RabbitMq RabbitMq { get; init; }
         public S3Settings S3Settings { get; init; }
+        public ApiSettings ApiSettings { get; init; }
     }
 
     public class ConnectionStrings
@@ -19,6 +20,11 @@
         public string Username { get; set; }
         public string Password { get; set; }
         public string QueueName { get; set; }
+    }
+
+    public class ApiSettings
+    {
+        public string ApiUrl { get; set; }
     }
 
     public class S3Settings
